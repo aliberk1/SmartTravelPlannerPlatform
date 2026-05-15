@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Istanbul",
+    "population": 15460000,
+    "area": 5461.0,
+    "currentTemperature": 22.5,
+    "currentWeatherState": "SUNNY"
+  },
+  {
+    "name": "Ankara",
+    "population": 5663000,
+    "area": 24521.0,
+    "currentTemperature": 15.0,
+    "currentWeatherState": "CLOUDY"
+  },
+  {
+    "name": "Izmir",
+    "population": 4367000,
+    "area": 11891.0,
+    "currentTemperature": 25.0,
+    "currentWeatherState": "SUNNY"
+  },
+  {
+    "name": "Antalya",
+    "population": 2548000,
+    "area": 20177.0,
+    "currentTemperature": 30.0,
+    "currentWeatherState": "SUNNY"
+  },
+  {
+    "name": "Bursa",
+    "population": 3101000,
+    "area": 10811.0,
+    "currentTemperature": 18.5,
+    "currentWeatherState": "RAINY"
+  },
+  {
+    "name": "Erzurum",
+    "population": 758000,
+    "area": 25006.0,
+    "currentTemperature": -5.0,
+    "currentWeatherState": "SNOWY"
+  },
+  {
+    "name": "Trabzon",
+    "population": 811000,
+    "area": 4664.0,
+    "currentTemperature": 14.0,
+    "currentWeatherState": "RAINY"
+  },
+  {
+    "name": "Kars",
+    "population": 284000,
+    "area": 10193.0,
+    "currentTemperature": -8.0,
+    "currentWeatherState": "SNOWY"
+  },
+  {
+    "name": "Konya",
+    "population": 2250000,
+    "area": 41001.0,
+    "currentTemperature": 16.0,
+    "currentWeatherState": "CLOUDY"
+  },
+  {
+    "name": "Adana",
+    "population": 2258000,
+    "area": 13844.0,
+    "currentTemperature": 28.0,
+    "currentWeatherState": "SUNNY"
+  }
+]
