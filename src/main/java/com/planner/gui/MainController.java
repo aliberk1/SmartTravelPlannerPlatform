@@ -722,24 +722,25 @@ public class MainController implements WeatherObserver {
         double previewTime = 0;
         List<String> selectedNames = new ArrayList<>();
 
-        // Seçili her onay kutusu için süre ve maliyeti topla
+        // Seçili her onay kutusu için süre ve maliyeti topla;
+        // Fotoğraftaki format: - Aktivite [1,5 h, $0,0] şeklinde
         if (cbMuseum.isSelected()) {
-            sb.append("- Visit Museum (2.0 h, $18.0)\n");
+            sb.append(String.format("- Visit Museum [%.1f h, $%.1f]%n", 2.0, 18.0));
             previewTime += 2.0; previewCost += 18.0;
             selectedNames.add("Visit Museum");
         }
         if (cbCenter.isSelected()) {
-            sb.append("- Visit City Center (1.5 h, $0.0)\n");
-            previewTime += 1.5; previewCost += 0.0;
+            sb.append(String.format("- Visit City Center [%.1f h, $%.1f]%n", 1.5, 0.0));
+            previewTime += 1.5;
             selectedNames.add("Visit City Center");
         }
         if (cbMall.isSelected()) {
-            sb.append("- Visit Shopping Mall (2.0 h, $25.0)\n");
+            sb.append(String.format("- Visit Shopping Mall [%.1f h, $%.1f]%n", 2.0, 25.0));
             previewTime += 2.0; previewCost += 25.0;
             selectedNames.add("Visit Shopping Mall");
         }
         if (cbPark.isSelected()) {
-            sb.append("- Walk in the Park (1.0 h, $7.0)\n");
+            sb.append(String.format("- Walk in the Park [%.1f h, $%.1f]%n", 1.0, 7.0));
             previewTime += 1.0; previewCost += 7.0;
             selectedNames.add("Walk in the Park");
         }
@@ -770,20 +771,13 @@ public class MainController implements WeatherObserver {
             sb.append(", ").append(name);
         }
         sb.append("\n");
-        sb.append("Selected activities total time: ").append(previewTime).append(" hours\n");
-        sb.append("Selected activities total cost: $").append(previewCost).append("\n");
-
-        // Ağaca daha önce eklenmiş tüm aktivitelerin toplamını göster (Composite toplama)
-        double treeTotalTime = (rootPlan != null) ? rootPlan.getTotalTime() : 0;
-        double treeTotalCost = (rootPlan != null) ? rootPlan.getTotalCost() : 0;
-        sb.append("\n--- Current Tree Total ---\n");
-        sb.append(String.format("Tree total time: %.1f hours%n", treeTotalTime));
-        sb.append(String.format("Tree total cost: $%.1f%n", treeTotalCost));
+        // Total time ve Total cost: onay kutusuna tıklandığında anlık olarak değişir
+        sb.append(String.format("Total time: %.1f hours%n", previewTime));
+        sb.append(String.format("Total cost: $%.1f%n", previewCost));
 
         planPreviewArea.setText(sb.toString());
-        // Alt etikette hem ağaç toplamını hem de seçili aktivite toplamını göster
-        previewTotalLabel.setText(String.format("Tree total: %.1f h / $%.1f  |  Selected: +%.1f h / +$%.1f",
-                treeTotalTime, treeTotalCost, previewTime, previewCost));
+        // Alt etiket: seçili aktivitelerin anlık önizleme toplamı
+        previewTotalLabel.setText(String.format("Preview total: %.1f hours / $%.1f", previewTime, previewCost));
     }
 
     /**
