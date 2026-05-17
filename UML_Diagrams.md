@@ -105,6 +105,7 @@ classDiagram
             + getTotalCost() double
             + getTotalTime() double
             + add(PlanComponent component)
+            + add(int index, PlanComponent component)
             + remove(PlanComponent component)
             + getChildren() List~PlanComponent~
         }
@@ -125,15 +126,15 @@ classDiagram
 
     %% 7. COMMAND PATTERN
     namespace Command {
-        class ICommand {
+        class Command {
             <<interface>>
             + execute()
             + undo()
         }
         class CommandManager {
-            - Stack~ICommand~ undoStack
-            - Stack~ICommand~ redoStack
-            + executeCommand(ICommand command)
+            - Stack~Command~ undoStack
+            - Stack~Command~ redoStack
+            + executeCommand(Command command)
             + undo()
             + redo()
         }
@@ -141,12 +142,16 @@ classDiagram
         class RemoveComponentCommand
         class MoveComponentCommand
         class ClearPlanCommand
+        class AddCityToTripCommand
+        class RemoveCityFromTripCommand
         
-        ICommand <|.. AddComponentCommand
-        ICommand <|.. RemoveComponentCommand
-        ICommand <|.. MoveComponentCommand
-        ICommand <|.. ClearPlanCommand
-        CommandManager o-- ICommand : manages
+        Command <|.. AddComponentCommand
+        Command <|.. RemoveComponentCommand
+        Command <|.. MoveComponentCommand
+        Command <|.. ClearPlanCommand
+        Command <|.. AddCityToTripCommand
+        Command <|.. RemoveCityFromTripCommand
+        CommandManager o-- Command : manages
     }
 
     %% CORE MODELS

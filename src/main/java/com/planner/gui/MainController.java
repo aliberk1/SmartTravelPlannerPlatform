@@ -80,6 +80,9 @@ public class MainController implements WeatherObserver {
     private Label previewHeaderLabel;
     // Önceden tanımlı aktivite seçeneklerinin onay kutuları
     private CheckBox cbMuseum, cbCenter, cbMall, cbPark;
+    // Dinamik aktivite katalogu: GUI'ıden eklenen özel aktivite onay kutularını tutan kutu
+    // PDF Gereksinimi: "The activity catalog should be extensible from the GUI"
+    private VBox dynamicCbBox;
     // Kullanıcının kendi aktivitesini ekleyebileceği metin alanları (ad, maliyet, süre)
     private TextField customLabelTF, customCostTF, customHoursTF;
     // Seçilen aktivitelerin metin önizlemesini gösteren alan
@@ -244,6 +247,11 @@ public class MainController implements WeatherObserver {
         cbPark = new CheckBox("Walk in the Park (1.0 h, $7.0)");
         cbBox.getChildren().addAll(cbMuseum, cbCenter, cbMall, cbPark);
 
+        // Dinamik aktivite katalogu kutusu: GUI'ıden eklenen özel aktivite onay kutuları
+        // PDF: "The activity catalog should be extensible from the GUI"
+        dynamicCbBox = new VBox(5);
+        dynamicCbBox.setStyle("-fx-border-color: lightgray; -fx-padding: 5;");
+
         // Herhangi bir onay kutusu değiştiğinde önizlemeyi güncelle
         cbMuseum.setOnAction(e -> updatePlanPreview());
         cbCenter.setOnAction(e -> updatePlanPreview());
@@ -261,7 +269,9 @@ public class MainController implements WeatherObserver {
         Button addCustomBtn = new Button("Add Custom Activity Option");
         customBox.getChildren().addAll(new Label("Label:"), customLabelTF, new Label("Cost:"), customCostTF, new Label("Hours:"), customHoursTF, addCustomBtn);
 
-        // "Add Custom Activity Option" butonu tıklandığında özel aktivite ekle
+        // "Add Custom Activity Option" butonu tıklandığında:
+        // 1. Kataloğa yeni bir onay kutusu ekler (dinamik genişletme)
+        // 2. Aktiviteyi direkt ağaca da ekler
         addCustomBtn.setOnAction(e -> addCustomActivity());
 
         // Seçili aktivitelerin metin önizlemesi
@@ -280,7 +290,7 @@ public class MainController implements WeatherObserver {
         addSelectedBtn.setOnAction(e -> addSelectedActivities());
         previewBottomBox.getChildren().addAll(previewTotalLabel, addSelectedBtn);
 
-        col3Box.getChildren().addAll(col3Title, previewHeaderLabel, availActivitiesLbl, cbBox, addCustomLbl, customBox, planPreviewLbl, planPreviewArea, previewBottomBox);
+        col3Box.getChildren().addAll(col3Title, previewHeaderLabel, availActivitiesLbl, cbBox, dynamicCbBox, addCustomLbl, customBox, planPreviewLbl, planPreviewArea, previewBottomBox);
 
         // Sütun 4: Aktivite ağacı (Composite deseninin görsel temsili)
         VBox col4Box = new VBox(5);
@@ -367,6 +377,12 @@ public class MainController implements WeatherObserver {
         btnGrid.add(clearTreeBtn, 0, 1);
         btnGrid.add(undoBtn, 1, 1);
         btnGrid.add(redoBtn, 2, 1);
+
+        // PDF Gereksinimi: "remove city from trip" butonu
+        Button removeCityBtn = new Button("Remove City from Trip");
+        removeCityBtn.setMaxWidth(Double.MAX_VALUE);
+        removeCityBtn.setOnAction(e -> removeCityFromTrip());
+        btnGrid.add(removeCityBtn, 0, 2, 3, 1); // 3 sütunu kaplasın
 
         col4Box.getChildren().addAll(treeTitleLabel, treeActiveCityLabel, addNodeLbl, planNameBox, planTreeView, btnGrid);
 
@@ -598,8 +614,8 @@ public class MainController implements WeatherObserver {
 
         for (City city : CityRepository.getInstance().getCities()) {
             String name = city.getName();
-            // Uzun şehir adlarını kısalt (grafik ekseninde yer sıkıntısı olmasın)
-            String shortName = name.length() > 5 ? name.substring(0, 5) + ".." : name;
+            // Uzun şehir adlarını kısalt (grafik ekseninde okunabilirlik için 8 karakter)
+            String shortName = name.length() > 8 ? name.substring(0, 8) + ".." : name;
             double temp = city.getCurrentTemperature();
             XYChart.Data<String, Number> data = new XYChart.Data<>(shortName, temp);
 
@@ -631,22 +647,28 @@ public class MainController implements WeatherObserver {
         tempChart.getData().add(series);
 
         // Pasta grafiği doldur; her dilime özel renk ata
+        // PDF Gereksinimi: "pie chart should contain the percentage"
         weatherPieChart.getData().clear();
         customLegendBox.getChildren().clear();
-        addPieSlice("SUNNY (" + sunnyCount + ")", sunnyCount, "#E35D36");
-        addPieSlice("CLOUDY (" + cloudyCount + ")", cloudyCount, "#ECAE24");
-        addPieSlice("RAINY (" + rainyCount + ")", rainyCount, "#5CB85C");
-        addPieSlice("SNOWY (" + snowyCount + ")", snowyCount, "#45A9C5");
+        int totalCities = sunnyCount + cloudyCount + rainyCount + snowyCount;
+        addPieSlice("SUNNY", sunnyCount, totalCities, "#E35D36");
+        addPieSlice("CLOUDY", cloudyCount, totalCities, "#ECAE24");
+        addPieSlice("RAINY", rainyCount, totalCities, "#5CB85C");
+        addPieSlice("SNOWY", snowyCount, totalCities, "#45A9C5");
     }
 
     /**
      * Pasta grafiğe bir dilim ekler; aynı zamanda sağ taraftaki özel
      * renk açıklamasına (legend) ilgili renkli daire + etiket ekler.
+     * PDF Gereksinimi: Etiketlerde yüzde değerinin gösterilmesi.
      * count == 0 ise dilim eklenmez (sıfır değeri grafiği bozar).
      */
-    private void addPieSlice(String name, int count, String color) {
+    private void addPieSlice(String name, int count, int total, String color) {
         if (count > 0) {
-            PieChart.Data d = new PieChart.Data(name, count);
+            // Yüzde hesapla ve etiket oluştur
+            double pct = (total > 0) ? (100.0 * count / total) : 0;
+            String label = String.format("%s (%d, %.0f%%)", name, count, pct);
+            PieChart.Data d = new PieChart.Data(label, count);
             weatherPieChart.getData().add(d);
             // Dilim oluşturulduğunda CSS rengi uygula
             d.nodeProperty().addListener((obs, oldNode, newNode) -> {
@@ -658,10 +680,10 @@ public class MainController implements WeatherObserver {
             // Özel renk açıklaması: renkli daire + metin etiketi
             javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(6);
             circle.setFill(javafx.scene.paint.Color.web(color));
-            Label label = new Label(name);
-            label.setFont(Font.font("System", 12));
-            label.setTextFill(javafx.scene.paint.Color.web("#333333"));
-            HBox legendItem = new HBox(8, circle, label);
+            Label legendLabel = new Label(label);
+            legendLabel.setFont(Font.font("System", 12));
+            legendLabel.setTextFill(javafx.scene.paint.Color.web("#333333"));
+            HBox legendItem = new HBox(8, circle, legendLabel);
             legendItem.setAlignment(Pos.CENTER_LEFT);
             customLegendBox.getChildren().add(legendItem);
         }
@@ -678,9 +700,11 @@ public class MainController implements WeatherObserver {
         if (city == null) return;
         activeCity = city;
 
-        // Her şehrin kendi aktivite planı Map'te saklanır; yoksa yeni oluştur
+        // PDF Gereksinimi: "add city to trip" undoable Command olmalı
+        // Şehir daha önce trip'e eklenmemişse AddCityToTripCommand ile ekle
         if (!cityPlans.containsKey(city.getName())) {
-            cityPlans.put(city.getName(), new ActivityPlan(city.getName() + " Root Plan"));
+            commandManager.executeCommand(
+                new AddCityToTripCommand(cityPlans, city.getName()));
         }
         rootPlan = cityPlans.get(city.getName());
 
@@ -751,6 +775,24 @@ public class MainController implements WeatherObserver {
             sb.append(String.format("- Walk in the Park [%.1f h, $%.1f]%n", 1.0, 7.0));
             previewTime += 1.0; previewCost += 7.0;
             selectedNames.add("Walk in the Park");
+        }
+
+        // Dinamik katalogdaki özel aktivite onay kutularını da kontrol et (B3)
+        for (javafx.scene.Node node : dynamicCbBox.getChildren()) {
+            if (node instanceof CheckBox) {
+                CheckBox cb = (CheckBox) node;
+                if (cb.isSelected()) {
+                    double[] data = (double[]) cb.getUserData();
+                    double cbCost = data[0];
+                    double cbHours = data[1];
+                    String cbText = cb.getText();
+                    String actName = cbText.contains(" (") ? cbText.substring(0, cbText.indexOf(" (")) : cbText;
+                    sb.append(String.format("- %s [%.1f h, $%.1f]%n", actName, cbHours, cbCost));
+                    previewTime += cbHours;
+                    previewCost += cbCost;
+                    selectedNames.add(actName);
+                }
+            }
         }
 
         sb.append("\n");
@@ -846,6 +888,26 @@ public class MainController implements WeatherObserver {
             commandManager.executeCommand(new AddComponentCommand(targetComposite, leaf));
         }
 
+        // Dinamik katalogdaki özel aktivite onay kutularını da işle (B3)
+        for (javafx.scene.Node node : dynamicCbBox.getChildren()) {
+            if (node instanceof CheckBox) {
+                CheckBox cb = (CheckBox) node;
+                if (cb.isSelected()) {
+                    String cbText = cb.getText();
+                    // CheckBox metninden aktivite adını ayıkla: "Label (h, $cost)" formatı
+                    String actName = cbText.contains(" (") ? cbText.substring(0, cbText.indexOf(" (")) : cbText;
+                    if (!existingNames.contains(actName)) {
+                        double[] data = (double[]) cb.getUserData();
+                        double cbCost = data[0];
+                        double cbHours = data[1];
+                        ActivityLeaf leaf = new ActivityLeaf(actName, cbCost, cbHours);
+                        commandManager.executeCommand(new AddComponentCommand(targetComposite, leaf));
+                    }
+                    cb.setSelected(false);
+                }
+            }
+        }
+
         // Tüm onay kutularını temizle
         cbMuseum.setSelected(false);
         cbCenter.setSelected(false);
@@ -856,10 +918,14 @@ public class MainController implements WeatherObserver {
     }
 
     /**
-     * Kullanıcının metin alanlarına girdiği özel aktiviteyi ağaca ekler.
-     * Girilen ad, maliyet ve süre değerleri okunur; doğrudan ActivityLeaf
-     * olarak oluşturulur ve Command deseni ile hedef düğüme eklenir.
-     * Sayı formatı hatalıysa sessizce görmezden gelir (NumberFormatException).
+     * Kullanıcının metin alanlarına girdiği özel aktiviteyi hem kataloğa hem ağaca ekler.
+     * PDF Gereksinimi: "The activity catalog should be extensible from the GUI,
+     * so users can add custom activities like cinema or dinner."
+     * 
+     * 1. Girilen ad, maliyet ve süre değerleri okunur
+     * 2. Aynı isimde aktivite kontrolü yapılır (duplicate check)
+     * 3. Dinamik kataloğa yeni bir CheckBox eklenir (gelecekte tekrar seçilebilir)
+     * 4. Aktivite doğrudan plan ağacına da eklenir
      */
     private void addCustomActivity() {
         if (activeCity == null || rootPlan == null) return;
@@ -881,9 +947,29 @@ public class MainController implements WeatherObserver {
                 targetComposite = rootPlan;
             }
 
+            // PDF Gereksinimi (C2): Duplicate kontrolü — aynı isimde aktivite varsa ekleme
+            java.util.Set<String> existingNames = new java.util.HashSet<>();
+            if (targetComposite.getChildren() != null) {
+                for (PlanComponent existing : targetComposite.getChildren()) {
+                    existingNames.add(existing.getName());
+                }
+            }
+            if (existingNames.contains(label)) return; // Aynı aktivite zaten var
+
             // Özel aktiviteyi yaprak düğüm olarak oluştur ve Command ile ekle
             ActivityLeaf leaf = new ActivityLeaf(label, cost, hours);
             commandManager.executeCommand(new AddComponentCommand(targetComposite, leaf));
+
+            // PDF Gereksinimi (B3): Kataloğa dinamik CheckBox ekle
+            // Bu sayede eklenen aktivite gelecekte de checkbox olarak seçilebilir
+            final String cbLabel = label;
+            final double cbCost = cost;
+            final double cbHours = hours;
+            CheckBox newCb = new CheckBox(String.format("%s (%.1f h, $%.1f)", cbLabel, cbHours, cbCost));
+            newCb.setOnAction(e -> updatePlanPreview());
+            // CheckBox'a userData olarak aktivite bilgilerini sakla
+            newCb.setUserData(new double[]{cbCost, cbHours});
+            dynamicCbBox.getChildren().add(newCb);
 
             // Metin alanlarını temizle
             customLabelTF.clear();
@@ -895,6 +981,35 @@ public class MainController implements WeatherObserver {
         } catch (NumberFormatException ignored) {
             // Geçersiz sayı formatı durumunda sessiz kal; kullanıcıya alert gösterilmez
         }
+    }
+
+    /**
+     * PDF Gereksinimi (B2): "remove city from trip" — Aktif şehri trip'ten çıkarır.
+     * RemoveCityFromTripCommand ile undo edilebilir şekilde kaldırılır.
+     * Aktif şehir null yapılır ve ağaç temizlenir.
+     */
+    private void removeCityFromTrip() {
+        if (activeCity == null) return;
+        String cityName = activeCity.getName();
+
+        // Şehir trip'te değilse işlem yapma
+        if (!cityPlans.containsKey(cityName)) return;
+
+        // RemoveCityFromTripCommand ile şehri trip'ten kaldır (undo edilebilir)
+        commandManager.executeCommand(new RemoveCityFromTripCommand(cityPlans, cityName));
+
+        // Aktif şehri ve planı sıfırla
+        activeCity = null;
+        rootPlan = null;
+
+        // UI'ı güncelle
+        previewHeaderLabel.setText("Preview for - | Weather: - | Temp: -");
+        treeTitleLabel.setText("Activity Tree for -");
+        treeActiveCityLabel.setText("Active city: -");
+        planPreviewArea.setText("");
+        previewTotalLabel.setText("Preview total: 0.0 hours / $0.0");
+        planTreeView.setRoot(null);
+        updateStatus();
     }
 
     /**

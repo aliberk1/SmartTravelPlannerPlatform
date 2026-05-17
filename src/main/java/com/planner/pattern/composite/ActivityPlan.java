@@ -71,6 +71,22 @@ public class ActivityPlan implements PlanComponent {
     }
 
     /**
+     * Plan grubuna belirli bir pozisyona yeni bir alt eleman ekler.
+     * Undo işleminde silinen elemanı orijinal konumuna geri yerleştirmek için kullanılır.
+     *
+     * @param index Eklenecek pozisyon (0-tabanlı)
+     * @param component Eklenecek bileşen
+     */
+    @Override
+    public void add(int index, PlanComponent component) {
+        if (index >= 0 && index <= children.size()) {
+            children.add(index, component);
+        } else {
+            children.add(component); // Geçersiz index ise sona ekle
+        }
+    }
+
+    /**
      * Plan grubundan bir alt seyahat elemanını çıkarır.
      */
     @Override

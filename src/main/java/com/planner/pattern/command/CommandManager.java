@@ -83,6 +83,8 @@ public class CommandManager {
         if (base.equals("RemoveComponent")) return "Remove Plan Component";
         if (base.equals("MoveComponent")) return "Move Plan Component";
         if (base.equals("ClearPlan")) return "Clear Active City Tree";
+        if (base.equals("AddCityToTrip")) return "Add City to Trip";
+        if (base.equals("RemoveCityFromTrip")) return "Remove City from Trip";
         return base;
     }
 }

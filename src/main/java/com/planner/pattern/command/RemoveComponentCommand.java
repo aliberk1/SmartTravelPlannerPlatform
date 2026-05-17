@@ -47,13 +47,14 @@ public class RemoveComponentCommand implements Command {
     }
 
     /**
-     * Silinen alt bileşeni ebeveyn plana geri ekleyerek silme işlemini geri alır (Undo).
+     * Silinen alt bileşeni ebeveyn planın orijinal konumuna geri ekleyerek silme işlemini geri alır (Undo).
+     * previousIndex kullanılarak eleman tam silindiği pozisyona yerleştirilir.
      */
     @Override
     public void undo() {
         if (parent != null && parent.getChildren() != null && previousIndex >= 0) {
-            // Silinen elemanı tekrar ebeveyn plana ekleyerek geri yükler
-            parent.add(child);
+            // Silinen elemanı orijinal konumuna geri yerleştir (sırası korunur)
+            parent.add(previousIndex, child);
         }
     }
 }

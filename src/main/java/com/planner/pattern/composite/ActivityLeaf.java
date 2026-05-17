@@ -66,6 +66,14 @@ public class ActivityLeaf implements PlanComponent {
     }
 
     /**
+     * Yaprak düğüme belirli bir pozisyona da alt eleman eklenemez.
+     */
+    @Override
+    public void add(int index, PlanComponent component) {
+        throw new UnsupportedOperationException("Yaprak düğüme alt eleman eklenemez (Cannot add to a leaf)");
+    }
+
+    /**
      * Yaprak düğümden alt eleman çıkarılamaz, bu yüzden hata fırlatır.
      */
     @Override

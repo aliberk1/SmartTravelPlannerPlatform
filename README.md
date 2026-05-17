@@ -73,10 +73,11 @@ The GUI includes the following panels:
    ```bash
    mvn javafx:run
    ```
-   *Alternatively, run the Fat JAR:*
+   *Alternatively, run the Fat JAR (Windows only):*
    ```bash
-   java -jar target/SmartTravelPlanner-1.0-SNAPSHOT-shaded.jar
+   java -jar YourPackagedApp.jar
    ```
+   > **Note:** The fat JAR includes Windows-specific JavaFX native libraries. On Linux/Mac, use `mvn javafx:run` instead.
 
 ## Project Structure
 
@@ -137,3 +138,8 @@ src/main/java/com/planner/
 ## Team
 
 - **Team 1** — SENG 324 Term Project
+  - Student A — Singleton + Strategy + Iterator
+  - Student B — Observer + Decorator
+  - Student C — Composite + Command + GUI
+
+> See [CONTRIBUTIONS.md](CONTRIBUTIONS.md) for detailed contribution report.

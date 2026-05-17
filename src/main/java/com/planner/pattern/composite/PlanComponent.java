@@ -43,6 +43,16 @@ public interface PlanComponent {
     void add(PlanComponent component);
 
     /**
+     * Bu plana belirli bir pozisyona (index) yeni bir alt bileşen ekler.
+     * RemoveComponentCommand.undo() işlemi sırasında silinen elemanı
+     * orijinal konumuna geri yerleştirmek için kullanılır.
+     *
+     * @param index Eklenecek pozisyon (0-tabanlı)
+     * @param component Eklenecek bileşen
+     */
+    void add(int index, PlanComponent component);
+
+    /**
      * Bu plandan bir alt bileşeni çıkarır (Sadece Composite düğümlerde çalışır).
      */
     void remove(PlanComponent component);

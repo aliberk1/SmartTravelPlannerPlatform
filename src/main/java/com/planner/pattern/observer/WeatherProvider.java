@@ -4,9 +4,9 @@ import com.planner.model.City;
 import com.planner.model.WeatherState;
 import com.planner.pattern.singleton.CityRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * WeatherProvider Sınıfı (Observer / Gözlemci Tasarım Deseni - Somut Konu / Subject)
@@ -23,8 +23,9 @@ import java.util.Random;
  * updateWeather() metodunu çalıştırarak ekranı günceller." diyebilirsiniz.
  */
 public class WeatherProvider implements Runnable {
-    // Kayıtlı gözlemcilerin (Observers) tutulduğu liste
-    private List<WeatherObserver> observers = new ArrayList<>();
+    // Kayıtlı gözlemcilerin (Observers) tutulduğu thread-safe liste
+    // CopyOnWriteArrayList kullanarak farklı thread'lerden güvenli iterasyon sağlanır
+    private List<WeatherObserver> observers = new CopyOnWriteArrayList<>();
     // Thread'in çalışmaya devam etmesini sağlayan kontrol bayrağı
     private boolean running = true;
     // Sıcaklık ve hava durumu değişimleri için rastgele sayı üreteci
