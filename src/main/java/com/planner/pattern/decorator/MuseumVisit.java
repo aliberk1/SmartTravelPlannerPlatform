@@ -26,7 +26,7 @@ public class MuseumVisit extends ActivityDecorator {
      */
     @Override
     public String getDescription() {
-        return super.getDescription() + ", Müze";
+        return super.getDescription() + ", Museum";
     }
 
     /**

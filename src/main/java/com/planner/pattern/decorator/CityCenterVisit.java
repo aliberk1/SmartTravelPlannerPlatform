@@ -28,7 +28,7 @@ public class CityCenterVisit extends ActivityDecorator {
      */
     @Override
     public String getDescription() {
-        return super.getDescription() + ", Şehir Merkezi";
+        return super.getDescription() + ", City Center";
     }
 
     /**
@@ -36,7 +36,7 @@ public class CityCenterVisit extends ActivityDecorator {
      */
     @Override
     public double getCost() {
-        return super.getCost() + 0.0;
+        return super.getCost() + 0.0; // Şehir merkezi gezisi ücretsizdir
     }
 
     /**

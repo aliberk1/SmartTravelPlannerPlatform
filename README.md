@@ -1,48 +1,67 @@
-# Smart Travel Planner
+# Smart Travel Planner Platform
 
 ![Java](https://img.shields.io/badge/Java-17-orange.svg)
 ![JavaFX](https://img.shields.io/badge/JavaFX-17-blue.svg)
 ![Maven](https://img.shields.io/badge/Maven-Build-success.svg)
 ![Design Patterns](https://img.shields.io/badge/Design_Patterns-7_Implemented-brightgreen.svg)
 
-Smart Travel Planner is a modern desktop application built with JavaFX that helps users plan their trips and activities. It was developed primarily to demonstrate the practical application of 7 core **Software Design Patterns** in a real-world scenario.
+## Project Overview
 
-The application features real-time simulated weather data, dynamic filtering, sorting, and a robust tree-based trip planner complete with cost/time calculation and undo/redo capabilities.
+Smart Travel Planner Platform is a desktop application built with **JavaFX** for the **SENG 324 - Software Design Patterns** term project. It enables users to explore, monitor, and plan trips across different cities while demonstrating the practical usage of **7 core Software Design Patterns**.
+
+The application features real-time simulated weather data, dynamic filtering, sorting, a robust tree-based trip planner with recursive cost/time calculation, and full undo/redo capabilities.
 
 ## Features
 
-- **City Data Management:** View a comprehensive list of cities loaded from a local JSON source.
-- **Dynamic Sorting & Filtering:** Sort cities by Name, Population, or Area. Filter cities based on their current simulated weather (Sunny, Rainy, etc.).
-- **Real-Time Data Simulation:** Includes a live weather simulator that randomly updates weather conditions and temperatures every 3 seconds, automatically reflecting changes on live charts.
-- **Trip Planning:** Add cities to your travel plan and nest various activities (Museums, Malls, Parks) under them to build a detailed itinerary.
-- **Cost & Time Calculation:** Automatically calculates the total cost and duration of your planned trip based on selected activities.
-- **Undo/Redo System:** Made a mistake? Seamlessly undo or redo your actions in the trip planner.
+- **City Data Management:** View a list of cities loaded from a JSON data source via a Singleton repository.
+- **Dynamic Sorting:** Sort cities by Name, Population, or Area using the Strategy Design Pattern.
+- **Weather Filtering:** Filter cities by current weather condition (Sunny, Cloudy, Rainy, Snowy) using the Iterator Design Pattern.
+- **Real-Time Weather Simulation:** A background thread (Observer pattern) randomly updates weather conditions and temperatures every 3 seconds, dynamically reflecting changes on live Bar and Pie charts.
+- **Trip Planning with Decorator:** Add decorated activities (Museum, Shopping Mall, Park, City Center) to cities. Each decorator dynamically wraps cost and time information.
+- **Hierarchical Plan Builder (Composite):** Build full travel plans as a tree structure containing multiple Activity Plans and Activity Leaves with recursive total cost and time calculation.
+- **Custom Activities:** Add user-defined activities (e.g., Cinema, Dinner) with custom cost and duration via the GUI.
+- **Undo/Redo System (Command):** All plan modifications are encapsulated as Command objects, enabling perfect Undo and Redo via a dual-stack mechanism.
+- **No Duplicate Activities:** The system prevents adding duplicate activities under the same composite node.
 
 ## Implemented Design Patterns
 
-This project successfully implements the following **7 Design Patterns**:
+| # | Pattern | Classes | Purpose |
+|---|---------|---------|---------|
+| 1 | **Singleton** | `CityRepository` | Reads JSON once, provides shared city list from a single point |
+| 2 | **Strategy** | `SortStrategy`, `SortByName`, `SortByPopulation`, `SortByArea` | Extensible sorting algorithms switchable at runtime |
+| 3 | **Iterator** | `CityIterator`, `SunnyIterator`, `CloudyIterator`, `RainyIterator`, `SnowyIterator` | Custom weather-filtered iterators over city collections |
+| 4 | **Observer** | `WeatherObserver`, `WeatherProvider`, `MainController` | Push-based weather updates from background thread to UI |
+| 5 | **Decorator** | `CityVisit`, `BaseCityVisit`, `ActivityDecorator`, `MuseumVisit`, `CityCenterVisit`, `ShoppingMallVisit`, `ParkVisit` | Dynamically wrap city visits with activity features |
+| 6 | **Composite** | `PlanComponent`, `ActivityPlan`, `ActivityLeaf` | Recursive tree structure for trip planning with total cost/time |
+| 7 | **Command** | `Command`, `CommandManager`, `AddComponentCommand`, `RemoveComponentCommand`, `MoveComponentCommand`, `ClearPlanCommand` | Encapsulated GUI actions with undo/redo support |
 
-1.  **Singleton:** `CityRepository` ensures the initial data is read only once, acting as the single source of truth for all application data.
-2.  **Strategy:** Different algorithms are used to sort the city list (by Name, Population, Area), which can be switched dynamically at runtime via the UI.
-3.  **Iterator:** A custom iterator traverses the city list, allowing the UI to filter and display cities based on specific weather conditions.
-4.  **Observer:** A background `WeatherProvider` thread pushes live weather updates every 3 seconds to subscribed Bar and Pie charts, updating the UI without manual intervention.
-5.  **Composite:** Used to build the Tree hierarchy for the trip planner. `ActivityPlan` nodes can contain cities and other activities, allowing recursive calculation of total cost and time.
-6.  **Decorator:** Wraps activity properties (like a Museum or Mall visit) around a base city visit, dynamically calculating cost and time without modifying the core objects.
-7.  **Command:** All planner modifications (Add, Delete, Clear) are encapsulated as Command objects and managed by a `CommandManager` using a Stack mechanism, enabling perfect Undo and Redo operations.
+## GUI Layout
+
+The GUI includes the following panels:
+
+1. **Control Area** — Sorting (ComboBox) and weather filtering (ComboBox)
+2. **All Cities List** — Sorted list of all cities with population, area, temperature, weather
+3. **Filtered Cities List** — Weather-filtered city list using Iterator pattern
+4. **Planner Panel** — Checkbox-based activity selection, custom activity input, Decorator preview
+5. **Travel Plan Panel** — Hierarchical TreeView showing Composite plan structure
+6. **Bar Chart** — Real-time city temperature visualization
+7. **Pie Chart** — Weather distribution with custom legend
+8. **Status Bar** — Current tree total (cost/time) and Undo/Redo descriptions
+9. **Undo/Redo Buttons** — Full command history navigation
 
 ## Getting Started
 
 ### Prerequisites
 
 - **Java Development Kit (JDK) 17** or higher
-- **Maven** 3.8+
+- **Apache Maven** 3.8+
 
 ### Installation & Execution
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Hamit3306/Smart-Travel-Planner.git
-   cd Smart-Travel-Planner
+   git clone https://github.com/aliberk1/SmartTravelPlannerPlatform.git
+   cd SmartTravelPlannerPlatform
    ```
 
 2. **Build the project using Maven**:
@@ -51,16 +70,62 @@ This project successfully implements the following **7 Design Patterns**:
    ```
 
 3. **Run the Application**:
-   You can run the application directly via the JavaFX Maven Plugin:
    ```bash
    mvn javafx:run
    ```
-   *Alternatively, you can run the generated Fat JAR located in the `target/` directory.*
+   *Alternatively, run the Fat JAR:*
+   ```bash
+   java -jar target/SmartTravelPlanner-1.0-SNAPSHOT-shaded.jar
+   ```
 
 ## Project Structure
 
-- `src/main/java/com/planner`: Contains the core Java source code, UI controllers, and design pattern implementations.
-- `pom.xml`: Maven configuration file managing dependencies (JavaFX, Gson) and build plugins.
+```
+src/main/java/com/planner/
+├── AppLauncher.java              # Entry point (fat JAR launcher)
+├── MainApp.java                  # JavaFX Application class
+├── model/
+│   ├── City.java                 # City data model
+│   └── WeatherState.java         # Weather enum (SUNNY, CLOUDY, RAINY, SNOWY)
+├── gui/
+│   └── MainController.java       # Main UI controller (Observer implementation)
+└── pattern/
+    ├── singleton/
+    │   └── CityRepository.java   # Singleton city data repository
+    ├── strategy/
+    │   ├── SortStrategy.java     # Strategy interface
+    │   ├── SortByName.java       # Sort by city name (A-Z)
+    │   ├── SortByPopulation.java # Sort by population (desc)
+    │   └── SortByArea.java       # Sort by area (desc)
+    ├── iterator/
+    │   ├── CityIterator.java     # Iterator interface
+    │   ├── SunnyIterator.java    # Filter: SUNNY cities
+    │   ├── CloudyIterator.java   # Filter: CLOUDY cities
+    │   ├── RainyIterator.java    # Filter: RAINY cities
+    │   └── SnowyIterator.java    # Filter: SNOWY cities
+    ├── observer/
+    │   ├── WeatherObserver.java  # Observer interface
+    │   └── WeatherProvider.java  # Subject: background weather updater
+    ├── decorator/
+    │   ├── CityVisit.java        # Component interface
+    │   ├── BaseCityVisit.java    # Concrete component
+    │   ├── ActivityDecorator.java# Abstract decorator
+    │   ├── MuseumVisit.java      # Concrete decorator ($18.0, 2.0h)
+    │   ├── CityCenterVisit.java  # Concrete decorator ($0.0, 1.5h)
+    │   ├── ShoppingMallVisit.java# Concrete decorator ($25.0, 2.0h)
+    │   └── ParkVisit.java        # Concrete decorator ($7.0, 1.0h)
+    ├── composite/
+    │   ├── PlanComponent.java    # Component interface
+    │   ├── ActivityPlan.java     # Composite node
+    │   └── ActivityLeaf.java     # Leaf node
+    └── command/
+        ├── Command.java          # Command interface
+        ├── CommandManager.java   # Invoker with undo/redo stacks
+        ├── AddComponentCommand.java
+        ├── RemoveComponentCommand.java
+        ├── MoveComponentCommand.java
+        └── ClearPlanCommand.java
+```
 
 ## Technologies Used
 
@@ -69,6 +134,6 @@ This project successfully implements the following **7 Design Patterns**:
 - **Build Tool:** Apache Maven
 - **JSON Parsing:** Google Gson
 
-## Author
+## Team
 
-- **Hamit3306**
+- **Team 1** — SENG 324 Term Project

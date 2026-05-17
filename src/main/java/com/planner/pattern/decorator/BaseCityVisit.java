@@ -39,7 +39,7 @@ public class BaseCityVisit implements CityVisit {
      */
     @Override
     public String getDescription() {
-        return city.getName() + " Ziyareti";
+        return "Visit to " + city.getName();
     }
 
     /**

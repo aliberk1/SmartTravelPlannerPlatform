@@ -28,7 +28,7 @@ public class ShoppingMallVisit extends ActivityDecorator {
      */
     @Override
     public String getDescription() {
-        return super.getDescription() + ", Alışveriş Merkezi";
+        return super.getDescription() + ", Shopping Mall";
     }
 
     /**

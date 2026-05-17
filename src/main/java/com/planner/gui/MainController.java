@@ -570,8 +570,8 @@ public class MainController implements WeatherObserver {
     @Override
     public void updateWeather() {
         Platform.runLater(() -> {
-            refreshAllCitiesList();    // Şehir listesini güncelle
-            applyIteratorFilter();     // Filtrelenmiş listeyi güncelle
+            applySortStrategy();       // Mevcut sıralama stratejisini yeniden uygula (Strategy deseni)
+            applyIteratorFilter();     // Filtrelenmiş listeyi güncelle (Iterator deseni)
             updateCharts();            // Grafikleri güncelle
             if (activeCity != null) {
                 // Aktif şehrin başlık bilgisini güncelle (yeni hava durumu ve sıcaklık)
@@ -722,24 +722,32 @@ public class MainController implements WeatherObserver {
         double previewTime = 0;
         List<String> selectedNames = new ArrayList<>();
 
+        // Dekoratör zinciri: BaseCityVisit üzerine seçili her aktiviteyi giydiriyoruz
+        // getDescription() ile Decorator deseni fiilen çalıştığını gösteriyoruz
+        CityVisit decoratedVisit = new BaseCityVisit(activeCity);
+
         // Seçili her onay kutusu için süre ve maliyeti topla;
-        // Fotoğraftaki format: - Aktivite [1,5 h, $0,0] şeklinde
+        // Fotoğraftaki format: - Aktivite [h, $] şeklinde
         if (cbMuseum.isSelected()) {
+            decoratedVisit = new MuseumVisit(decoratedVisit);
             sb.append(String.format("- Visit Museum [%.1f h, $%.1f]%n", 2.0, 18.0));
             previewTime += 2.0; previewCost += 18.0;
             selectedNames.add("Visit Museum");
         }
         if (cbCenter.isSelected()) {
+            decoratedVisit = new CityCenterVisit(decoratedVisit);
             sb.append(String.format("- Visit City Center [%.1f h, $%.1f]%n", 1.5, 0.0));
             previewTime += 1.5;
             selectedNames.add("Visit City Center");
         }
         if (cbMall.isSelected()) {
+            decoratedVisit = new ShoppingMallVisit(decoratedVisit);
             sb.append(String.format("- Visit Shopping Mall [%.1f h, $%.1f]%n", 2.0, 25.0));
             previewTime += 2.0; previewCost += 25.0;
             selectedNames.add("Visit Shopping Mall");
         }
         if (cbPark.isSelected()) {
+            decoratedVisit = new ParkVisit(decoratedVisit);
             sb.append(String.format("- Walk in the Park [%.1f h, $%.1f]%n", 1.0, 7.0));
             previewTime += 1.0; previewCost += 7.0;
             selectedNames.add("Walk in the Park");
@@ -764,13 +772,9 @@ public class MainController implements WeatherObserver {
         String targetName = targetComposite != null ? targetComposite.getName() : "None";
         sb.append("Active composite target: ").append(targetName).append("\n\n");
 
-        // Decorator deseni özeti: Temel ziyaret + seçili eklentiler
+        // Decorator deseni özeti: getDescription() ile zincirleme sonucu gösterilir
         sb.append("Decorator-based preview summary:\n");
-        sb.append("Base plan for visiting ").append(activeCity.getName());
-        for (String name : selectedNames) {
-            sb.append(", ").append(name);
-        }
-        sb.append("\n");
+        sb.append(decoratedVisit.getDescription()).append("\n");
         // Total time ve Total cost: onay kutusuna tıklandığında anlık olarak değişir
         sb.append(String.format("Total time: %.1f hours%n", previewTime));
         sb.append(String.format("Total cost: $%.1f%n", previewCost));
@@ -804,29 +808,38 @@ public class MainController implements WeatherObserver {
 
         if (targetComposite == null) return;
 
+        // PDF gereksinimi: Duplicate (tekrarlı) aktivite kontrolü
+        // Hedef composite altında aynı isimde aktivite varsa ekleme yapma
+        java.util.Set<String> existingNames = new java.util.HashSet<>();
+        if (targetComposite.getChildren() != null) {
+            for (PlanComponent existing : targetComposite.getChildren()) {
+                existingNames.add(existing.getName());
+            }
+        }
+
         // Müze: BaseCityVisit + MuseumVisit dekoratörü → ActivityLeaf → Command ile ekle
-        if (cbMuseum.isSelected()) {
+        if (cbMuseum.isSelected() && !existingNames.contains("Visit Museum")) {
             CityVisit base = new BaseCityVisit(activeCity);
             CityVisit decorated = new MuseumVisit(base);
             ActivityLeaf leaf = new ActivityLeaf("Visit Museum", decorated.getCost(), decorated.getTimeInHours());
             commandManager.executeCommand(new AddComponentCommand(targetComposite, leaf));
         }
         // Şehir Merkezi: BaseCityVisit + CityCenterVisit dekoratörü
-        if (cbCenter.isSelected()) {
+        if (cbCenter.isSelected() && !existingNames.contains("Visit City Center")) {
             CityVisit base = new BaseCityVisit(activeCity);
             CityVisit decorated = new CityCenterVisit(base);
             ActivityLeaf leaf = new ActivityLeaf("Visit City Center", decorated.getCost(), decorated.getTimeInHours());
             commandManager.executeCommand(new AddComponentCommand(targetComposite, leaf));
         }
         // AVM: BaseCityVisit + ShoppingMallVisit dekoratörü
-        if (cbMall.isSelected()) {
+        if (cbMall.isSelected() && !existingNames.contains("Visit Shopping Mall")) {
             CityVisit base = new BaseCityVisit(activeCity);
             CityVisit decorated = new ShoppingMallVisit(base);
             ActivityLeaf leaf = new ActivityLeaf("Visit Shopping Mall", decorated.getCost(), decorated.getTimeInHours());
             commandManager.executeCommand(new AddComponentCommand(targetComposite, leaf));
         }
         // Park: BaseCityVisit + ParkVisit dekoratörü
-        if (cbPark.isSelected()) {
+        if (cbPark.isSelected() && !existingNames.contains("Walk in the Park")) {
             CityVisit base = new BaseCityVisit(activeCity);
             CityVisit decorated = new ParkVisit(base);
             ActivityLeaf leaf = new ActivityLeaf("Walk in the Park", decorated.getCost(), decorated.getTimeInHours());
