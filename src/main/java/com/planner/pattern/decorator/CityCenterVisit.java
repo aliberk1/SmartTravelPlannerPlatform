@@ -12,11 +12,11 @@ public class CityCenterVisit extends ActivityDecorator {
 
     @Override
     public double getCost() {
-        return super.getCost() + 30.0;
+        return super.getCost() + 0.0;
     }
 
     @Override
     public double getTimeInHours() {
-        return super.getTimeInHours() + 4.0;
+        return super.getTimeInHours() + 1.5;
     }
 }

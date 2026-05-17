@@ -25,6 +25,6 @@ public class BaseCityVisit implements CityVisit {
 
     @Override
     public double getTimeInHours() {
-        return 24.0; // Assume base visit is 1 day (24h)
+        return 0.0; // Base visit should not add 24h default for tree views
     }
 }

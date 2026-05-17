@@ -12,11 +12,11 @@ public class MuseumVisit extends ActivityDecorator {
 
     @Override
     public double getCost() {
-        return super.getCost() + 50.0;
+        return super.getCost() + 18.0;
     }
 
     @Override
     public double getTimeInHours() {
-        return super.getTimeInHours() + 3.0;
+        return super.getTimeInHours() + 2.0;
     }
 }

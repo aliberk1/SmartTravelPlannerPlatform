@@ -27,4 +27,23 @@ public class CommandManager {
             undoStack.push(command);
         }
     }
+
+    public String getUndoDescription() {
+        if (undoStack.isEmpty()) return "Nothing";
+        return formatClassName(undoStack.peek().getClass().getSimpleName());
+    }
+
+    public String getRedoDescription() {
+        if (redoStack.isEmpty()) return "Nothing";
+        return formatClassName(redoStack.peek().getClass().getSimpleName());
+    }
+
+    private String formatClassName(String name) {
+        String base = name.replace("Command", "");
+        if (base.equals("AddComponent")) return "Add Plan Component";
+        if (base.equals("RemoveComponent")) return "Remove Plan Component";
+        if (base.equals("MoveComponent")) return "Move Plan Component";
+        if (base.equals("ClearPlan")) return "Clear Active City Tree";
+        return base;
+    }
 }

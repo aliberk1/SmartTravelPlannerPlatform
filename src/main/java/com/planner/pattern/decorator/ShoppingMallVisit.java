@@ -12,11 +12,11 @@ public class ShoppingMallVisit extends ActivityDecorator {
 
     @Override
     public double getCost() {
-        return super.getCost() + 100.0;
+        return super.getCost() + 25.0;
     }
 
     @Override
     public double getTimeInHours() {
-        return super.getTimeInHours() + 2.5;
+        return super.getTimeInHours() + 2.0;
     }
 }

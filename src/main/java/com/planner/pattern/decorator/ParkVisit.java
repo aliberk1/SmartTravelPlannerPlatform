@@ -12,11 +12,11 @@ public class ParkVisit extends ActivityDecorator {
 
     @Override
     public double getCost() {
-        return super.getCost() + 15.0;
+        return super.getCost() + 7.0;
     }
 
     @Override
     public double getTimeInHours() {
-        return super.getTimeInHours() + 1.5;
+        return super.getTimeInHours() + 1.0;
     }
 }

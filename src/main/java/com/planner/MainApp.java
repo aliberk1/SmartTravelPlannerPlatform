@@ -13,7 +13,7 @@ public class MainApp extends Application {
         
         Scene scene = new Scene(controller.getRootView(), 1200, 800);
         
-        primaryStage.setTitle("Smart Travel Planner - SENG 324");
+        primaryStage.setTitle("Smart Travel Planner Platform");
         primaryStage.setScene(scene);
         primaryStage.show();
         
