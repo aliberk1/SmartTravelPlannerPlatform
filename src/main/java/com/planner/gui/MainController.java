@@ -770,11 +770,20 @@ public class MainController implements WeatherObserver {
             sb.append(", ").append(name);
         }
         sb.append("\n");
-        sb.append("Total time: ").append(previewTime).append(" hours\n");
-        sb.append("Total cost: $").append(previewCost).append("\n");
+        sb.append("Selected activities total time: ").append(previewTime).append(" hours\n");
+        sb.append("Selected activities total cost: $").append(previewCost).append("\n");
+
+        // Ağaca daha önce eklenmiş tüm aktivitelerin toplamını göster (Composite toplama)
+        double treeTotalTime = (rootPlan != null) ? rootPlan.getTotalTime() : 0;
+        double treeTotalCost = (rootPlan != null) ? rootPlan.getTotalCost() : 0;
+        sb.append("\n--- Current Tree Total ---\n");
+        sb.append(String.format("Tree total time: %.1f hours%n", treeTotalTime));
+        sb.append(String.format("Tree total cost: $%.1f%n", treeTotalCost));
 
         planPreviewArea.setText(sb.toString());
-        previewTotalLabel.setText(String.format("Preview total: %.1f hours / $%.1f", previewTime, previewCost));
+        // Alt etikette hem ağaç toplamını hem de seçili aktivite toplamını göster
+        previewTotalLabel.setText(String.format("Tree total: %.1f h / $%.1f  |  Selected: +%.1f h / +$%.1f",
+                treeTotalTime, treeTotalCost, previewTime, previewCost));
     }
 
     /**
